@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from datetime import date
 
 st.set_page_config(page_title="Marle Nails & Beauty", page_icon="💖", layout="wide")
@@ -11,44 +10,56 @@ st.markdown("---")
 if 'servicios' not in st.session_state:
     st.session_state.servicios = []
 
-menu = st.sidebar.selectbox("💅 Menú Marle", ["💖 Ver Mi Negocio", "➕ Agregar Servicio", "📊 Mi Ganancia Total"])
+menu = st.sidebar.selectbox("💅 Menú Marle", ["💖 Ver Mi Negocio", "➕ Agregar Servicio", "🗑️ Borrar Servicio", "💰 Mi Ganancia Total"])
 
 if menu == "💖 Ver Mi Negocio":
     st.subheader("📋 Historial de Servicios")
     if not st.session_state.servicios:
         st.info("Aún no hay servicios. ¡Agrega tu primera keratina! 💖")
     else:
-        df = pd.DataFrame(st.session_state.servicios)
-        st.dataframe(df, use_container_width=True)
+        for i, s in enumerate(st.session_state.servicios):
+            st.write(f"**{i} - {s['clienta']}** | {s['servicio']} | Cobrado: ${s['cobrado']} | Ganancia: ${s['ganancia']} | {s['fecha']}")
 
-elif menu == "➕ Agregar Servicio":
-    st.subheader("✨ Nuevo Servicio a Cliente")
-    with st.form("servicio"):
-        nombre = st.text_input("Nombre de la clienta")
-        servicio = st.selectbox("Servicio", ["Aplicación de KERATINA", "AMINOÁCIDOS", "BLOWER Profesional"])
-        costo = st.number_input("¿Cuánto te costó el producto? (Inversión) $", min_value=0)
-        cobrado = st.number_input("¿Cuánto le cobraste a la clienta? $", min_value=0)
+if menu == "➕ Agregar Servicio":
+    st.subheader("➕ Agregar Nuevo Servicio")
+    with st.form("form"):
+        clienta = st.text_input("Nombre de la Clienta")
+        servicio = st.selectbox("Servicio", ["Aplicación de KERATINA", "Uñas", "Pestañas", "Otro"])
+        inversion = st.number_input("Cuánto te costó (Inversión)", min_value=0, value=40500)
+        cobrado = st.number_input("Cuánto cobraste", min_value=0, value=120000)
         fecha = st.date_input("Fecha", value=date.today())
         guardar = st.form_submit_button("💖 Guardar Servicio")
         if guardar:
-            ganancia = cobrado - costo
+            ganancia = cobrado - inversion
             st.session_state.servicios.append({
-                "Clienta": nombre, "Servicio": servicio,
-                "Inversión": costo, "Cobrado": cobrado,
-                "Ganancia": ganancia, "Fecha": str(fecha)
+                "clienta": clienta,
+                "servicio": servicio,
+                "inversion": inversion,
+                "cobrado": cobrado,
+                "ganancia": ganancia,
+                "fecha": str(fecha)
             })
-            st.success(f"¡Guardado! Ganaste ${ganancia:,.0f} con {nombre} 💖")
+            st.success(f"¡Servicio de {clienta} guardado! 💖")
 
-elif menu == "📊 Mi Ganancia Total":
+if menu == "🗑️ Borrar Servicio":
+    st.subheader("🗑️ Borrar Servicios que se repitieron")
     if not st.session_state.servicios:
-        st.warning("No hay datos aún")
+        st.info("No hay nada para borrar")
     else:
-        df = pd.DataFrame(st.session_state.servicios)
-        col1, col2, col3 = st.columns(3)
-        col1.metric("💸 Invertido", f"${df['Inversión'].sum():,.0f}")
-        col2.metric("💰 Cobrado", f"${df['Cobrado'].sum():,.0f}")
-        col3.metric("✨ GANANCIA", f"${df['Ganancia'].sum():,.0f}")
-        st.bar_chart(df.groupby("Servicio")["Ganancia"].sum())
+        for i, s in enumerate(st.session_state.servicios):
+            st.write(f"**{i}** - {s['clienta']} | {s['servicio']} | ${s['cobrado']}")
+        
+        st.divider()
+        indice = st.number_input("Escribe el NÚMERO de la fila que quieres borrar", min_value=0, max_value=len(st.session_state.servicios)-1, value=0)
+        if st.button("🔴 BORRAR AHORA"):
+            borrado = st.session_state.servicios.pop(indice)
+            st.warning(f"Borraste a {borrado['clienta']} - fila {indice}")
+            st.rerun()
 
-st.markdown("---")
+if menu == "💰 Mi Ganancia Total":
+    total = sum([s['ganancia'] for s in st.session_state.servicios])
+    st.metric("💰 Ganancia Total", f"${total:,.0f}")
+    st.balloons()
+
+st.divider()
 st.markdown("💖 Contacto: +57 304 381 0896 | Barranquilla 💖")
