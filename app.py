@@ -10,17 +10,22 @@ st.markdown("---")
 if 'servicios' not in st.session_state:
     st.session_state.servicios = []
 
-menu = st.sidebar.selectbox("💅 Menú Marle", ["💖 Ver Mi Negocio", "➕ Agregar Servicio", "🗑️ Borrar Servicio", "💰 Mi Ganancia Total"])
+menu = st.sidebar.selectbox("💅 Menú Marle", ["Ver Mi Negocio", "Agregar Servicio", "Borrar Servicio", "Mi Ganancia Total"])
 
-if menu == "💖 Ver Mi Negocio":
+if menu == "Ver Mi Negocio":
     st.subheader("📋 Historial de Servicios")
     if not st.session_state.servicios:
         st.info("Aún no hay servicios. ¡Agrega tu primera keratina! 💖")
     else:
         for i, s in enumerate(st.session_state.servicios):
-            st.write(f"**{i} - {s['clienta']}** | {s['servicio']} | Cobrado: ${s['cobrado']} | Ganancia: ${s['ganancia']} | {s['fecha']}")
+            clienta = s.get("clienta","")
+            servicio = s.get("servicio","")
+            cobrado = s.get("cobrado",0)
+            ganancia = s.get("ganancia",0)
+            fecha = s.get("fecha","")
+            st.write(f"{i} - {clienta} | {servicio} | Cobrado: ${cobrado} | Ganancia: ${ganancia} | {fecha}")
 
-if menu == "➕ Agregar Servicio":
+if menu == "Agregar Servicio":
     st.subheader("➕ Agregar Nuevo Servicio")
     with st.form("form"):
         clienta = st.text_input("Nombre de la Clienta")
@@ -39,25 +44,24 @@ if menu == "➕ Agregar Servicio":
                 "ganancia": ganancia,
                 "fecha": str(fecha)
             })
-            st.success(f"¡Servicio de {clienta} guardado! 💖")
+            st.success(f"Servicio de {clienta} guardado! 💖")
 
-if menu == "🗑️ Borrar Servicio":
-    st.subheader("🗑️ Borrar Servicios que se repitieron")
+if menu == "Borrar Servicio":
+    st.subheader("🗑️ Borrar Servicios repetidos")
     if not st.session_state.servicios:
         st.info("No hay nada para borrar")
     else:
         for i, s in enumerate(st.session_state.servicios):
-            st.write(f"**{i}** - {s['clienta']} | {s['servicio']} | ${s['cobrado']}")
-        
+            st.write(f"{i} - {s.get('clienta')} | {s.get('servicio')}")
         st.divider()
-        indice = st.number_input("Escribe el NÚMERO de la fila que quieres borrar", min_value=0, max_value=len(st.session_state.servicios)-1, value=0)
+        indice = st.number_input("Número de fila a borrar", min_value=0, max_value=len(st.session_state.servicios)-1, value=0)
         if st.button("🔴 BORRAR AHORA"):
             borrado = st.session_state.servicios.pop(indice)
-            st.warning(f"Borraste a {borrado['clienta']} - fila {indice}")
+            st.warning(f"Borraste la fila {indice}")
             st.rerun()
 
-if menu == "💰 Mi Ganancia Total":
-    total = sum([s['ganancia'] for s in st.session_state.servicios])
+if menu == "Mi Ganancia Total":
+    total = sum([s.get("ganancia",0) for s in st.session_state.servicios])
     st.metric("💰 Ganancia Total", f"${total:,.0f}")
     st.balloons()
 
