@@ -24,6 +24,8 @@ if 'trabajos' not in st.session_state:
     st.session_state.trabajos = datos["trabajos"]
 if 'inversiones' not in st.session_state:
     st.session_state.inversiones = datos["inversiones"]
+if 'editando' not in st.session_state:
+    st.session_state.editando = None
 
 st.markdown("""
 <style>
@@ -31,8 +33,8 @@ st.markdown("""
 .stApp {background-color: #fdf6f8; background-image: radial-gradient(#f9d5e5 1px, transparent 1px); background-size: 28px 28px;}
 h1,h2,h3 {font-family: 'Cormorant Garamond', serif !important; color: #8e4a63 !important;}
 p, label, div {font-family: 'Poppins', sans-serif !important; font-weight: 300 !important; color: #6d4c5b !important;}
-.card-delicada {background: rgba(255,255,255,0.9); border-radius: 22px; padding: 22px; border: 1px solid #f9d5e5; box-shadow: 0 10px 30px rgba(142,74,99,0.06); margin-bottom: 18px;}
-.stButton>button {background: #8e4a63 !important; color: white !important; border-radius: 30px; letter-spacing: 1.5px; text-transform: uppercase; font-size: 12px !important; padding: 12px 20px; border: 1px solid #8e4a63 !important;}
+.card-delicada {background: rgba(255,255,255,0.95); border-radius: 22px; padding: 22px; border: 1px solid #f9d5e5; box-shadow: 0 10px 30px rgba(142,74,99,0.06); margin-bottom: 14px;}
+.stButton>button {background: #8e4a63 !important; color: white !important; border-radius: 30px; letter-spacing: 1px; text-transform: uppercase; font-size: 11px !important; padding: 8px 16px; border: 1px solid #8e4a63 !important;}
 .stButton>button * {color: white !important;}
 .contact-card {background: white; border-radius: 20px; padding: 18px; border: 1px solid #f9d5e5; text-align: center;}
 </style>
@@ -47,7 +49,6 @@ st.markdown("""
 <p style="margin:10px 0;font-size:14px">+57 3043810896<br>Barranquilla - A domicilio y en estudio</p>
 </div>
 """, unsafe_allow_html=True)
-
 st.link_button("💬 ESCRIBEME POR WHATSAPP", "https://wa.me/573043810896", use_container_width=True)
 st.write("")
 
@@ -72,6 +73,7 @@ if not st.session_state.get('admin', False) and st.session_state.get('show_login
         else:
             st.error("Contraseña incorrecta mi reina")
 
+# VISTA PUBLICA
 if not st.session_state.get('admin', False):
     st.markdown("<p style='text-align:center;margin-top:15px'>✨ Mis trabajos para mis reinas ✨</p>", unsafe_allow_html=True)
     if not st.session_state.trabajos:
@@ -87,13 +89,29 @@ if not st.session_state.get('admin', False):
                 st.image(t['despues'], caption="Después ✨")
     st.stop()
 
-st.markdown("<p style='text-align:center'>Hola, Marle 🌸 tu estudio te espera</p>", unsafe_allow_html=True)
-tabs = st.tabs(["Registrar", "Historial", "Ganancias"])
+# VISTA PRIVADA
+tabs = st.tabs(["Registrar", "Historial / Editar", "Ganancias"])
 
 with tabs[0]:
+    # Si está editando, cargar datos
+    if st.session_state.editando is not None:
+        t_edit = st.session_state.trabajos[st.session_state.editando]
+        st.warning(f"✏️ Editando a: {t_edit['cliente']}")
+        cliente_default = t_edit['cliente']
+        precio_default = t_edit['precio']
+        inversion_default = t_edit.get('inversion',0)
+        productos_default = t_edit.get('productos','')
+        notas_default = t_edit.get('notas','')
+    else:
+        cliente_default = ""
+        precio_default = 0
+        inversion_default = 0
+        productos_default = ""
+        notas_default = ""
+
     with st.container():
         st.markdown("<div class='card-delicada'>", unsafe_allow_html=True)
-        cliente = st.text_input("Nombre", placeholder="Ej. Yulieth")
+        cliente = st.text_input("Nombre", value=cliente_default, placeholder="Ej. Yulieth")
         kera = st.checkbox("Keratinas")
         amino = st.checkbox("Aminoácidos")
         blower = st.checkbox("Blower")
@@ -108,50 +126,89 @@ with tabs[0]:
         
         col_val1, col_val2 = st.columns(2)
         with col_val1:
-            precio = st.number_input("Valor cobrado *", min_value=0, step=1000, help="Lo que le cobraste a la clienta")
+            precio = st.number_input("Valor cobrado *", min_value=0, step=1000, value=precio_default)
         with col_val2:
-            inversion = st.number_input("Valor de inversión *", min_value=0, step=1000, help="Lo que gastaste en producto")
+            inversion = st.number_input("Valor de inversión *", min_value=0, step=1000, value=inversion_default)
         
         if precio and inversion:
-            ganancia = precio - inversion
-            st.info(f"💰 Ganancia de este trabajo: ${ganancia:,.0f}")
+            st.info(f"💰 Ganancia: ${precio - inversion:,.0f}")
         
-        productos = st.text_input("Productos usados (opcional)")
-        notas = st.text_area("Notas (opcional)")
-        fa = st.file_uploader("Foto ANTES *", type=["jpg","png","jpeg"], key="fa")
-        fd = st.file_uploader("Foto DESPUÉS *", type=["jpg","png","jpeg"], key="fd")
-        if st.button("GUARDAR PARA SIEMPRE 💖", use_container_width=True):
-            if not cliente or not precio or not servicios or not fa or not fd:
-                st.error("Mi reina, completa nombre, servicios, valor cobrado y las 2 fotos")
-            else:
-                uid = str(uuid.uuid4())[:8]
-                ra = f"imagenes/{uid}_antes.jpg"
-                rd = f"imagenes/{uid}_despues.jpg"
-                with open(ra, "wb") as f: f.write(fa.getbuffer())
-                with open(rd, "wb") as f: f.write(fd.getbuffer())
-                st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "inversion": inversion, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
-                guardar(st.session_state.trabajos, st.session_state.inversiones)
-                st.success(f"Guardado! Ganancia: ${precio - inversion:,.0f} 🌸")
-                st.rerun()
+        productos = st.text_input("Productos usados (opcional)", value=productos_default)
+        notas = st.text_area("Notas (opcional)", value=notas_default)
+        fa = st.file_uploader("Foto ANTES (si no cambias, deja vacío)", type=["jpg","png","jpeg"], key="fa")
+        fd = st.file_uploader("Foto DESPUÉS (si no cambias, deja vacío)", type=["jpg","png","jpeg"], key="fd")
+        
+        if st.session_state.editando is None:
+            if st.button("GUARDAR PARA SIEMPRE 💖", use_container_width=True):
+                if not cliente or not precio or not servicios or not fa or not fd:
+                    st.error("Completa todo mi reina")
+                else:
+                    uid = str(uuid.uuid4())[:8]
+                    ra = f"imagenes/{uid}_antes.jpg"
+                    rd = f"imagenes/{uid}_despues.jpg"
+                    with open(ra, "wb") as f: f.write(fa.getbuffer())
+                    with open(rd, "wb") as f: f.write(fd.getbuffer())
+                    st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "inversion": inversion, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
+                    guardar(st.session_state.trabajos, st.session_state.inversiones)
+                    st.success("Guardado 🌸")
+                    st.rerun()
+        else:
+            col_g, col_c = st.columns(2)
+            with col_g:
+                if st.button("✅ ACTUALIZAR", use_container_width=True):
+                    t = st.session_state.trabajos[st.session_state.editando]
+                    t['cliente'] = cliente
+                    t['servicios'] = servicios if servicios else t['servicios']
+                    t['precio'] = precio
+                    t['inversion'] = inversion
+                    t['productos'] = productos
+                    t['notas'] = notas
+                    if fa:
+                        with open(t['antes'], "wb") as f: f.write(fa.getbuffer())
+                    if fd:
+                        with open(t['despues'], "wb") as f: f.write(fd.getbuffer())
+                    guardar(st.session_state.trabajos, st.session_state.inversiones)
+                    st.session_state.editando = None
+                    st.success("Actualizado!")
+                    st.rerun()
+            with col_c:
+                if st.button("❌ CANCELAR", use_container_width=True):
+                    st.session_state.editando = None
+                    st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
 with tabs[1]:
-    for t in st.session_state.trabajos:
-        inv = t.get('inversion', 0)
-        gan = t.get('precio',0) - inv
-        st.markdown(f"<div class='card-delicada'><b>{t['cliente']}</b> - {' • '.join(t['servicios'])}<br>Cobrado: ${t['precio']:,.0f} - Invertido: ${inv:,.0f} - <b>Ganancia: ${gan:,.0f}</b></div>", unsafe_allow_html=True)
+    st.markdown("#### Tus registros - Edita o Elimina si se repitió")
+    if not st.session_state.trabajos:
+        st.write("No hay registros aún")
+    else:
+        for idx, t in enumerate(st.session_state.trabajos):
+            inv = t.get('inversion',0)
+            gan = t.get('precio',0) - inv
+            st.markdown(f"<div class='card-delicada'><b>{t['cliente']}</b> - {' • '.join(t['servicios'])}<br>Cobrado: ${t['precio']:,.0f} - Invertido: ${inv:,.0f} - <b>Ganancia: ${gan:,.0f}</b></div>", unsafe_allow_html=True)
+            ce1, ce2 = st.columns(2)
+            with ce1:
+                if st.button(f"✏️ EDITAR", key=f"edit_{idx}", use_container_width=True):
+                    st.session_state.editando = idx
+                    st.rerun()
+            with ce2:
+                if st.button(f"🗑️ ELIMINAR", key=f"del_{idx}", use_container_width=True):
+                    # borrar fotos
+                    try:
+                        if os.path.exists(t['antes']): os.remove(t['antes'])
+                        if os.path.exists(t['despues']): os.remove(t['despues'])
+                    except:
+                        pass
+                    st.session_state.trabajos.pop(idx)
+                    guardar(st.session_state.trabajos, st.session_state.inversiones)
+                    st.success("Eliminado")
+                    st.rerun()
 
 with tabs[2]:
     total_cobrado = sum([t['precio'] for t in st.session_state.trabajos])
     total_inversion = sum([t.get('inversion',0) for t in st.session_state.trabajos])
     total_ganancia = total_cobrado - total_inversion
-    
     c1,c2,c3 = st.columns(3)
     c1.metric("Cobrado", f"${total_cobrado:,.0f}")
     c2.metric("Invertido", f"${total_inversion:,.0f}")
     c3.metric("Ganancia Real", f"${total_ganancia:,.0f}")
-    
-    st.markdown("---")
-    for t in st.session_state.trabajos:
-        inv = t.get('inversion',0)
-        st.write(f"{t['cliente']} - Cobrado: ${t['precio']:,.0f} - Inversión: ${inv:,.0f} - Ganancia: ${t['precio']-inv:,.0f}")
