@@ -1,153 +1,133 @@
 import streamlit as st
+import os, json, uuid
 
 st.set_page_config(page_title="MARLE NAILS BEAUTY", page_icon="🌸", layout="centered")
 
+# --- GUARDADO PARA QUE NO SE BORRE NUNCA ---
+os.makedirs("imagenes", exist_ok=True)
+ARCHIVO = "imagenes/datos.json"
+
+def cargar():
+    if os.path.exists(ARCHIVO):
+        with open(ARCHIVO, "r") as f:
+            return json.load(f)
+    return {"trabajos": [], "inversiones": []}
+
+def guardar(trabajos, inversiones):
+    with open(ARCHIVO, "w") as f:
+        json.dump({"trabajos": trabajos, "inversiones": inversiones}, f)
+
+datos = cargar()
+if 'trabajos' not in st.session_state:
+    st.session_state.trabajos = datos["trabajos"]
+if 'inversiones' not in st.session_state:
+    st.session_state.inversiones = datos["inversiones"]
+
+# --- TUS COLORES LINDOS DE LA FOTO ---
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Poppins:wght@300;400&display=swap');
-.stApp {
-    background-color: #fdf6f8;
-    background-image: radial-gradient(#f9d5e5 1px, transparent 1px);
-    background-size: 25px 25px;
-}
-h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', serif !important;
-    font-weight: 600 !important;
-    color: #8e4a63 !important;
-    letter-spacing: 1px;
-}
-p, label, div {
-    font-family: 'Poppins', sans-serif !important;
-    font-weight: 300 !important;
-    color: #6d4c5b !important;
-}
-.card-delicada {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 22px;
-    padding: 24px;
-    border: 1px solid #f9d5e5;
-    box-shadow: 0 10px 30px rgba(142,74,99,0.06);
-    margin-bottom: 18px;
-}
-.stButton>button {
-    background: #8e4a63;
-    color: #fff9fa !important;
-    border-radius: 30px;
-    font-family: 'Poppins', sans-serif !important;
-    font-weight: 400 !important;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    font-size: 12px !important;
-    padding: 12px 20px;
-    border: 1px solid #8e4a63;
-    box-shadow: none;
-}
-.stButton>button:hover {
-    background: transparent;
-    color: #8e4a63 !important;
-    border: 1px solid #8e4a63;
-}
-div[data-testid="stCheckbox"] {
-    background: rgba(255,255,255,0.7);
-    padding: 12px 15px;
-    border-radius: 14px;
-    border: 1px solid #f3d1de;
-    margin-bottom: 8px;
-}
-div[data-testid="stMetric"] {
-    background: white;
-    border-radius: 20px;
-    border: 1px solid #f9d5e5;
-    padding: 20px;
-}
-hr {border: 0.5px solid #f9d5e5;}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Poppins:wght@300;400&display=swap');
+.stApp {background-color: #fdf6f8; background-image: radial-gradient(#f9d5e5 1px, transparent 1px); background-size: 28px 28px;}
+h1,h2,h3 {font-family: 'Cormorant Garamond', serif !important; color: #8e4a63 !important; letter-spacing: 1px;}
+p, label, div {font-family: 'Poppins', sans-serif !important; font-weight: 300 !important; color: #6d4c5b !important;}
+.card-delicada {background: rgba(255,255,255,0.9); border-radius: 22px; padding: 22px; border: 1px solid #f9d5e5; box-shadow: 0 10px 30px rgba(142,74,99,0.06); margin-bottom: 18px;}
+.stButton>button {background: #8e4a63; color: white !important; border-radius: 30px; letter-spacing: 1.5px; text-transform: uppercase; font-size: 12px !important; padding: 12px 20px; border: 1px solid #8e4a63;}
+.stButton>button:hover {background: transparent; color: #8e4a63 !important;}
+.contact-card {background: white; border-radius: 20px; padding: 18px; border: 1px solid #f9d5e5; text-align: center; box-shadow: 0 8px 20px rgba(142,74,99,0.05);}
 </style>
 """, unsafe_allow_html=True)
 
-if 'admin' not in st.session_state:
-    st.session_state.admin = False
-if 'trabajos' not in st.session_state:
-    st.session_state.trabajos = []
-
 st.markdown("<h1 style='text-align:center;font-size:42px;margin-bottom:0'>MARLE NAILS BEAUTY</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin-top:5px;color:#b07a8f !important'>Delicate • Beauty • Studio</p>", unsafe_allow_html=True)
+
+# --- TU CONTACTO REAL ---
+st.markdown(f"""
+<div class='contact-card'>
+<p style='margin:0;letter-spacing:2px;text-transform:uppercase;font-size:11px'>Contáctame mi reina 🌸</p>
+<p style='margin:10px 0;font-size:14px'>📱 <b>+57 3043810896</b><br>📍 Barranquilla - A domicilio y en estudio</p>
+<a href='https://wa.me/573043810896' target='_blank' style='text-decoration:none;background:#8e4a63;color:white !important;padding:10px 22px;border-radius:25px;font-size:12px;letter-spacing:1px'>💬 ESCRÍBEME POR WHATSAPP</a>
+</div>
+""", unsafe_allow_html=True)
 st.write("")
 
-if not st.session_state.admin:
-    st.markdown("<div class='card-delicada'><p style='text-align:center;letter-spacing:2px;text-transform:uppercase;font-size:12px'>Acceso Privado</p><h3 style='text-align:center;margin-top:0'>Bienvenida, Marle</h3></div>", unsafe_allow_html=True)
-    clave = st.text_input("Contraseña", type="password", placeholder="••••")
-    if st.button("ENTRAR", use_container_width=True):
-        if clave == "marle2024":
-            st.session_state.admin = True
+# --- BOTON ADMIN ---
+c1, c2 = st.columns([3,1])
+with c2:
+    if not st.session_state.get('admin', False):
+        if st.button("🔐 Admin"): st.session_state.show_login = True
+    else:
+        if st.button("Cerrar"): 
+            st.session_state.admin = False
             st.rerun()
-        else:
-            st.error("Contraseña incorrecta")
+
+if not st.session_state.get('admin', False) and st.session_state.get('show_login', False):
+    with st.container():
+        st.markdown("<div class='card-delicada'><b>Acceso privado solo para Marle 🌸</b></div>", unsafe_allow_html=True)
+        clave = st.text_input("Contraseña", type="password")
+        if st.button("Entrar a mi privado"):
+            if clave == "marle2024":
+                st.session_state.admin = True
+                st.session_state.show_login = False
+                st.rerun()
+            else: st.error("Contraseña incorrecta mi reina")
+
+# --- VISTA PUBLICA - LO QUE VEN TUS CLIENTAS Y NUNCA SE BORRA ---
+if not st.session_state.get('admin', False):
+    st.markdown("<p style='text-align:center;margin-top:15px;letter-spacing:1px'>✨ Mis trabajos para mis reinas ✨</p>", unsafe_allow_html=True)
+    buscar = st.text_input("", placeholder="Buscar clienta...")
+    if not st.session_state.trabajos:
+        st.markdown("<div class='card-delicada'><p style='text-align:center'>Pronto verás mi magia aquí 🌸</p></div>", unsafe_allow_html=True)
+    for t in st.session_state.trabajos:
+        if buscar.lower() in t['cliente'].lower() or buscar == "":
+            st.markdown(f"<div class='card-delicada'><p style='margin:0;font-size:16px'><b>{t['cliente']}</b></p><p style='font-size:11px;letter-spacing:1px;color:#b07a8f !important'>{' • '.join(t['servicios']).upper()}</p></div>", unsafe_allow_html=True)
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if os.path.exists(t['antes']): st.image(t['antes'], caption="Antes")
+            with col_b:
+                if os.path.exists(t['despues']): st.image(t['despues'], caption="Después ✨")
     st.stop()
 
-st.markdown("<p style='text-align:center;font-size:13px;letter-spacing:1px'>Hola, Marle 🌸 tu estudio te espera</p>", unsafe_allow_html=True)
+# --- VISTA PRIVADA TUYA ---
+st.markdown("<p style='text-align:center'>Hola, Marle 🌸 tu estudio te espera</p>", unsafe_allow_html=True)
+tabs = st.tabs(["Registrar", "Historial", "Ganancias"])
 
-menu = st.tabs(["Registrar", "Historial", "Ganancias"])
-
-with menu[0]:
+with tabs[0]:
     st.markdown("<div class='card-delicada'>", unsafe_allow_html=True)
     st.markdown("#### Nueva Clienta")
     cliente = st.text_input("Nombre", placeholder="Ej. Yulieth")
-
-    st.markdown("<p style='font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-top:15px'>Servicios Realizados</p>", unsafe_allow_html=True)
-    st.caption("Selecciona los que realizaste en esta cita")
-    
-    kera = st.checkbox("Keratinas")
-    amino = st.checkbox("Aminoácidos")
-    blower = st.checkbox("Blower")
-    tinte = st.checkbox("Aplicación de Tinte")
-    puntas = st.checkbox("Corte de Puntas")
-
-    servicios = []
-    if kera: servicios.append("Keratinas")
-    if amino: servicios.append("Aminoácidos")
-    if blower: servicios.append("Blower")
-    if tinte: servicios.append("Aplicación de Tinte")
-    if puntas: servicios.append("Corte de Puntas")
-
-    precio = st.number_input("Valor cobrado", min_value=0, step=1000, help="Tú defines según el cabello")
-    productos = st.text_input("Productos utilizados", placeholder="Opcional")
-    notas = st.text_area("Notas delicadas", placeholder="Ej. Cabello largo, tono deseado, cuidados...")
-
-    col1, col2 = st.columns(2)
-    with col1: foto_antes = st.file_uploader("Antes", type=["jpg","png","jpeg"], key="antes")
-    with col2: foto_despues = st.file_uploader("Después", type=["jpg","png","jpeg"], key="despues")
-
-    st.write("")
-    if st.button("Guardar Trabajo", use_container_width=True):
-        if not cliente or not precio or not servicios or not foto_antes or not foto_despues:
-            st.error("Por favor completa nombre, servicios, valor y ambas fotos")
+    st.markdown("<p style='font-size:11px;letter-spacing:1px;text-transform:uppercase'>Servicios realizados</p>", unsafe_allow_html=True)
+    kera = st.checkbox("Keratinas"); amino = st.checkbox("Aminoácidos"); blower = st.checkbox("Blower"); tinte = st.checkbox("Aplicación de Tinte"); puntas = st.checkbox("Corte de Puntas")
+    servicios = [s for s,c in [("Keratinas",kera),("Aminoácidos",amino),("Blower",blower),("Aplicación de Tinte",tinte),("Corte de Puntas",puntas)] if c]
+    precio = st.number_input("Valor cobrado", min_value=0, step=1000)
+    productos = st.text_input("Productos usados (opcional)"); notas = st.text_area("Notas (opcional)")
+    fa = st.file_uploader("Foto ANTES *", type=["jpg","png","jpeg"], key="fa")
+    fd = st.file_uploader("Foto DESPUÉS *", type=["jpg","png","jpeg"], key="fd")
+    if st.button("Guardar para siempre 💖", use_container_width=True):
+        if not cliente or not precio or not servicios or not fa or not fd:
+            st.error("Mi reina, completa nombre, servicios, valor y las 2 fotos")
         else:
-            trabajo = {"cliente": cliente, "servicios": servicios, "precio": precio, "productos": productos, "notas": notas, "antes": foto_antes, "despues": foto_despues}
-            st.session_state.trabajos.append(trabajo)
-            st.success(f"Guardado con amor: {cliente}")
+            uid = str(uuid.uuid4())[:8]
+            ra = f"imagenes/{uid}_antes.jpg"; rd = f"imagenes/{uid}_despues.jpg"
+            with open(ra, "wb") as f: f.write(fa.getbuffer())
+            with open(rd, "wb") as f: f.write(fd.getbuffer())
+            st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
+            guardar(st.session_state.trabajos, st.session_state.inversiones)
+            st.success("Guardado para siempre, ya lo verán tus clientas 🌸")
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
-with menu[1]:
-    st.markdown("<p style='letter-spacing:2px;text-transform:uppercase;font-size:11px'>Galería</p>", unsafe_allow_html=True)
-    buscar = st.text_input("", placeholder="Buscar clienta...")
+with tabs[1]:
     for t in st.session_state.trabajos:
-        if buscar.lower() in t['cliente'].lower() or buscar == "":
-            st.markdown(f"<div class='card-delicada'><p style='margin:0;font-size:16px'><b>{t['cliente']}</b></p><p style='margin:2px 0 0 0;font-size:12px;letter-spacing:1px;color:#b07a8f !important'>{'  •  '.join(t['servicios']).upper()}  —  ${t['precio']:,.0f}</p></div>", unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            with c1: st.image(t['antes'])
-            with c2: st.image(t['despues'])
+        st.markdown(f"<div class='card-delicada'><b>{t['cliente']}</b> - {' • '.join(t['servicios'])} - ${t['precio']:,.0f}</div>", unsafe_allow_html=True)
 
-with menu[2]:
-    st.markdown("<p style='letter-spacing:2px;text-transform:uppercase;font-size:11px'>Resumen</p>", unsafe_allow_html=True)
+with tabs[2]:
     total = sum([t['precio'] for t in st.session_state.trabajos])
-    c1, c2 = st.columns(2)
-    with c1: st.metric("Total", f"${total:,.0f}")
-    with c2: st.metric("Clientas", len(st.session_state.trabajos))
-    for t in st.session_state.trabajos:
-        st.markdown(f"<div style='background:white;padding:12px 16px;border-radius:12px;border:1px solid #f9d5e5;margin-bottom:6px;display:flex;justify-content:space-between'><span style='font-size:13px'>{t['cliente']} — {' + '.join(t['servicios'])}</span><span style='font-size:13px;color:#8e4a63'>${t['precio']:,.0f}</span></div>", unsafe_allow_html=True)
-
-st.write("")
-if st.button("Cerrar sesión", use_container_width=True):
-    st.session_state.admin = False
-    st.rerun()
+    inv = sum([i['valor'] for i in st.session_state.inversiones])
+    c1,c2,c3 = st.columns(3)
+    c1.metric("Ingresos", f"${total:,.0f}"); c2.metric("Invertido", f"${inv:,.0f}"); c3.metric("Neta", f"${total-inv:,.0f}")
+    prod = st.text_input("Producto comprado"); val = st.number_input("Costo", min_value=0, step=1000, key="inv2")
+    if st.button("Guardar inversión"):
+        if prod and val:
+            st.session_state.inversiones.append({"producto": prod, "valor": val})
+            guardar(st.session_state.trabajos, st.session_state.inversiones)
+            st.success("Guardada")
