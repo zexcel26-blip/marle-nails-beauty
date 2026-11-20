@@ -3,7 +3,6 @@ import os, json, uuid
 
 st.set_page_config(page_title="MARLE NAILS BEAUTY", page_icon="🌸", layout="centered")
 
-# --- GUARDADO PARA QUE NO SE BORRE NUNCA ---
 os.makedirs("imagenes", exist_ok=True)
 ARCHIVO = "imagenes/datos.json"
 
@@ -23,16 +22,37 @@ if 'trabajos' not in st.session_state:
 if 'inversiones' not in st.session_state:
     st.session_state.inversiones = datos["inversiones"]
 
-# --- TUS COLORES LINDOS DE LA FOTO ---
+# --- COLORES ARREGLADOS CON LETRA BLANCA ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Poppins:wght@300;400&display=swap');
 .stApp {background-color: #fdf6f8; background-image: radial-gradient(#f9d5e5 1px, transparent 1px); background-size: 28px 28px;}
-h1,h2,h3 {font-family: 'Cormorant Garamond', serif !important; color: #8e4a63 !important; letter-spacing: 1px;}
+h1,h2,h3 {font-family: 'Cormorant Garamond', serif !important; color: #8e4a63 !important;}
 p, label, div {font-family: 'Poppins', sans-serif !important; font-weight: 300 !important; color: #6d4c5b !important;}
 .card-delicada {background: rgba(255,255,255,0.9); border-radius: 22px; padding: 22px; border: 1px solid #f9d5e5; box-shadow: 0 10px 30px rgba(142,74,99,0.06); margin-bottom: 18px;}
-.stButton>button {background: #8e4a63; color: white !important; border-radius: 30px; letter-spacing: 1.5px; text-transform: uppercase; font-size: 12px !important; padding: 12px 20px; border: 1px solid #8e4a63;}
-.stButton>button:hover {background: transparent; color: #8e4a63 !important;}
+
+/* BOTONES TODOS CON LETRA BLANCA */
+.stButton>button {
+    background: #8e4a63 !important;
+    color: white !important;
+    border-radius: 30px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 12px !important;
+    padding: 12px 20px;
+    border: 1px solid #8e4a63 !important;
+}
+.stButton>button * {
+    color: white !important;
+}
+.stButton>button:hover {
+    background: #6d3449 !important;
+    color: white !important;
+    border: 1px solid #6d3449 !important;
+}
+.stButton>button:hover * {
+    color: white !important;
+}
 .contact-card {background: white; border-radius: 20px; padding: 18px; border: 1px solid #f9d5e5; text-align: center; box-shadow: 0 8px 20px rgba(142,74,99,0.05);}
 </style>
 """, unsafe_allow_html=True)
@@ -40,38 +60,35 @@ p, label, div {font-family: 'Poppins', sans-serif !important; font-weight: 300 !
 st.markdown("<h1 style='text-align:center;font-size:42px;margin-bottom:0'>MARLE NAILS BEAUTY</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin-top:5px;color:#b07a8f !important'>Delicate • Beauty • Studio</p>", unsafe_allow_html=True)
 
-# --- TU CONTACTO REAL ---
+# --- BOTON WHATSAPP CON LETRA BLANCA BIEN VISIBLE ---
 st.markdown(f"""
 <div class='contact-card'>
-<p style='margin:0;letter-spacing:2px;text-transform:uppercase;font-size:11px'>Contáctame mi reina 🌸</p>
+<p style='margin:0;letter-spacing:2px;text-transform:uppercase;font-size:11px'>CONTÁCTAME MI REINA 🌸</p>
 <p style='margin:10px 0;font-size:14px'>📱 <b>+57 3043810896</b><br>📍 Barranquilla - A domicilio y en estudio</p>
-<a href='https://wa.me/573043810896' target='_blank' style='text-decoration:none;background:#8e4a63;color:white !important;padding:10px 22px;border-radius:25px;font-size:12px;letter-spacing:1px'>💬 ESCRÍBEME POR WHATSAPP</a>
+<a href='https://wa.me/573043810896' target='_blank' style='text-decoration:none;background:#8e4a63;color:white !important;padding:12px 24px;border-radius:25px;font-size:13px;letter-spacing:1px;font-weight:600;display:inline-block'>💬 ESCRÍBEME POR WHATSAPP</a>
 </div>
 """, unsafe_allow_html=True)
 st.write("")
 
-# --- BOTON ADMIN ---
 c1, c2 = st.columns([3,1])
 with c2:
     if not st.session_state.get('admin', False):
         if st.button("🔐 Admin"): st.session_state.show_login = True
     else:
-        if st.button("Cerrar"): 
+        if st.button("CERRAR"): 
             st.session_state.admin = False
             st.rerun()
 
 if not st.session_state.get('admin', False) and st.session_state.get('show_login', False):
-    with st.container():
-        st.markdown("<div class='card-delicada'><b>Acceso privado solo para Marle 🌸</b></div>", unsafe_allow_html=True)
-        clave = st.text_input("Contraseña", type="password")
-        if st.button("Entrar a mi privado"):
-            if clave == "marle2024":
-                st.session_state.admin = True
-                st.session_state.show_login = False
-                st.rerun()
-            else: st.error("Contraseña incorrecta mi reina")
+    st.markdown("<div class='card-delicada'><b>Acceso privado solo para Marle 🌸</b></div>", unsafe_allow_html=True)
+    clave = st.text_input("Contraseña", type="password")
+    if st.button("ENTRAR A MI PRIVADO"):
+        if clave == "marle2024":
+            st.session_state.admin = True
+            st.session_state.show_login = False
+            st.rerun()
+        else: st.error("Contraseña incorrecta mi reina")
 
-# --- VISTA PUBLICA - LO QUE VEN TUS CLIENTAS Y NUNCA SE BORRA ---
 if not st.session_state.get('admin', False):
     st.markdown("<p style='text-align:center;margin-top:15px;letter-spacing:1px'>✨ Mis trabajos para mis reinas ✨</p>", unsafe_allow_html=True)
     buscar = st.text_input("", placeholder="Buscar clienta...")
@@ -87,7 +104,6 @@ if not st.session_state.get('admin', False):
                 if os.path.exists(t['despues']): st.image(t['despues'], caption="Después ✨")
     st.stop()
 
-# --- VISTA PRIVADA TUYA ---
 st.markdown("<p style='text-align:center'>Hola, Marle 🌸 tu estudio te espera</p>", unsafe_allow_html=True)
 tabs = st.tabs(["Registrar", "Historial", "Ganancias"])
 
@@ -102,9 +118,9 @@ with tabs[0]:
     productos = st.text_input("Productos usados (opcional)"); notas = st.text_area("Notas (opcional)")
     fa = st.file_uploader("Foto ANTES *", type=["jpg","png","jpeg"], key="fa")
     fd = st.file_uploader("Foto DESPUÉS *", type=["jpg","png","jpeg"], key="fd")
-    if st.button("Guardar para siempre 💖", use_container_width=True):
+    if st.button("GUARDAR PARA SIEMPRE 💖", use_container_width=True):
         if not cliente or not precio or not servicios or not fa or not fd:
-            st.error("Mi reina, completa nombre, servicios, valor y las 2 fotos")
+            st.error("Mi reina, completa todo")
         else:
             uid = str(uuid.uuid4())[:8]
             ra = f"imagenes/{uid}_antes.jpg"; rd = f"imagenes/{uid}_despues.jpg"
@@ -112,7 +128,7 @@ with tabs[0]:
             with open(rd, "wb") as f: f.write(fd.getbuffer())
             st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
             guardar(st.session_state.trabajos, st.session_state.inversiones)
-            st.success("Guardado para siempre, ya lo verán tus clientas 🌸")
+            st.success("Guardado para siempre 🌸")
             st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -125,9 +141,3 @@ with tabs[2]:
     inv = sum([i['valor'] for i in st.session_state.inversiones])
     c1,c2,c3 = st.columns(3)
     c1.metric("Ingresos", f"${total:,.0f}"); c2.metric("Invertido", f"${inv:,.0f}"); c3.metric("Neta", f"${total-inv:,.0f}")
-    prod = st.text_input("Producto comprado"); val = st.number_input("Costo", min_value=0, step=1000, key="inv2")
-    if st.button("Guardar inversión"):
-        if prod and val:
-            st.session_state.inversiones.append({"producto": prod, "valor": val})
-            guardar(st.session_state.trabajos, st.session_state.inversiones)
-            st.success("Guardada")
