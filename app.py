@@ -49,7 +49,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.link_button("💬 ESCRIBEME POR WHATSAPP", "https://wa.me/573043810896", use_container_width=True)
-
 st.write("")
 
 c1, c2 = st.columns([3,1])
@@ -106,34 +105,53 @@ with tabs[0]:
         if blower: servicios.append("Blower")
         if tinte: servicios.append("Aplicación de Tinte")
         if puntas: servicios.append("Corte de Puntas")
-        precio = st.number_input("Valor cobrado", min_value=0, step=1000)
+        
+        col_val1, col_val2 = st.columns(2)
+        with col_val1:
+            precio = st.number_input("Valor cobrado *", min_value=0, step=1000, help="Lo que le cobraste a la clienta")
+        with col_val2:
+            inversion = st.number_input("Valor de inversión *", min_value=0, step=1000, help="Lo que gastaste en producto")
+        
+        if precio and inversion:
+            ganancia = precio - inversion
+            st.info(f"💰 Ganancia de este trabajo: ${ganancia:,.0f}")
+        
         productos = st.text_input("Productos usados (opcional)")
         notas = st.text_area("Notas (opcional)")
         fa = st.file_uploader("Foto ANTES *", type=["jpg","png","jpeg"], key="fa")
         fd = st.file_uploader("Foto DESPUÉS *", type=["jpg","png","jpeg"], key="fd")
         if st.button("GUARDAR PARA SIEMPRE 💖", use_container_width=True):
             if not cliente or not precio or not servicios or not fa or not fd:
-                st.error("Mi reina, completa todo")
+                st.error("Mi reina, completa nombre, servicios, valor cobrado y las 2 fotos")
             else:
                 uid = str(uuid.uuid4())[:8]
                 ra = f"imagenes/{uid}_antes.jpg"
                 rd = f"imagenes/{uid}_despues.jpg"
                 with open(ra, "wb") as f: f.write(fa.getbuffer())
                 with open(rd, "wb") as f: f.write(fd.getbuffer())
-                st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
+                st.session_state.trabajos.append({"cliente": cliente, "servicios": servicios, "precio": precio, "inversion": inversion, "productos": productos, "notas": notas, "antes": ra, "despues": rd})
                 guardar(st.session_state.trabajos, st.session_state.inversiones)
-                st.success("Guardado para siempre 🌸")
+                st.success(f"Guardado! Ganancia: ${precio - inversion:,.0f} 🌸")
                 st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
 with tabs[1]:
     for t in st.session_state.trabajos:
-        st.markdown(f"<div class='card-delicada'><b>{t['cliente']}</b> - {' • '.join(t['servicios'])} - ${t['precio']:,.0f}</div>", unsafe_allow_html=True)
+        inv = t.get('inversion', 0)
+        gan = t.get('precio',0) - inv
+        st.markdown(f"<div class='card-delicada'><b>{t['cliente']}</b> - {' • '.join(t['servicios'])}<br>Cobrado: ${t['precio']:,.0f} - Invertido: ${inv:,.0f} - <b>Ganancia: ${gan:,.0f}</b></div>", unsafe_allow_html=True)
 
 with tabs[2]:
-    total = sum([t['precio'] for t in st.session_state.trabajos])
-    inv = sum([i['valor'] for i in st.session_state.inversiones])
+    total_cobrado = sum([t['precio'] for t in st.session_state.trabajos])
+    total_inversion = sum([t.get('inversion',0) for t in st.session_state.trabajos])
+    total_ganancia = total_cobrado - total_inversion
+    
     c1,c2,c3 = st.columns(3)
-    c1.metric("Ingresos", f"${total:,.0f}")
-    c2.metric("Invertido", f"${inv:,.0f}")
-    c3.metric("Neta", f"${total-inv:,.0f}")
+    c1.metric("Cobrado", f"${total_cobrado:,.0f}")
+    c2.metric("Invertido", f"${total_inversion:,.0f}")
+    c3.metric("Ganancia Real", f"${total_ganancia:,.0f}")
+    
+    st.markdown("---")
+    for t in st.session_state.trabajos:
+        inv = t.get('inversion',0)
+        st.write(f"{t['cliente']} - Cobrado: ${t['precio']:,.0f} - Inversión: ${inv:,.0f} - Ganancia: ${t['precio']-inv:,.0f}")
